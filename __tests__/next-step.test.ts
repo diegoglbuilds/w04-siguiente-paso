@@ -3,6 +3,9 @@ import { DIRECTION_IDS } from "@/lib/directions";
 import {
   getNextStep,
   parseLocalSelection,
+  removeLocalSelection,
+  restoreLocalSelection,
+  saveLocalSelection,
   serializeLocalSelection,
 } from "@/lib/next-step";
 
@@ -29,5 +32,17 @@ describe("reglas deterministas del siguiente paso", () => {
     JSON.stringify({ directionId: "operations-support", nextStep: "texto libre" }),
   ])("descarta estado local desconocido o manipulado", (stored) => {
     expect(parseLocalSelection(stored)).toBeNull();
+  });
+
+  it("tolera un almacenamiento completamente bloqueado", () => {
+    const blockedStorage = {
+      getItem: () => { throw new DOMException("blocked", "SecurityError"); },
+      setItem: () => { throw new DOMException("blocked", "SecurityError"); },
+      removeItem: () => { throw new DOMException("blocked", "SecurityError"); },
+    };
+
+    expect(restoreLocalSelection(blockedStorage)).toBeNull();
+    expect(saveLocalSelection(blockedStorage, "operations-support")).toBe(false);
+    expect(removeLocalSelection(blockedStorage)).toBe(false);
   });
 });

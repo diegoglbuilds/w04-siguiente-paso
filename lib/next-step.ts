@@ -63,3 +63,40 @@ export function parseLocalSelection(value: string | null): DirectionId | null {
     return null;
   }
 }
+
+type LocalSelectionStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+
+export function restoreLocalSelection(storage: LocalSelectionStorage): DirectionId | null {
+  try {
+    const stored = storage.getItem(NEXT_STEP_STORAGE_KEY);
+    const restored = parseLocalSelection(stored);
+    if (stored && !restored) {
+      try {
+        storage.removeItem(NEXT_STEP_STORAGE_KEY);
+      } catch {
+        // The invalid value remains inaccessible, but is never trusted.
+      }
+    }
+    return restored;
+  } catch {
+    return null;
+  }
+}
+
+export function saveLocalSelection(storage: LocalSelectionStorage, directionId: DirectionId): boolean {
+  try {
+    storage.setItem(NEXT_STEP_STORAGE_KEY, serializeLocalSelection(directionId));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function removeLocalSelection(storage: LocalSelectionStorage): boolean {
+  try {
+    storage.removeItem(NEXT_STEP_STORAGE_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}

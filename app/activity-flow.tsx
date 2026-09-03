@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import {
   calculateOrganizeResult,
   type ActivityResult,
@@ -13,9 +13,9 @@ import {
 } from "@/lib/directions";
 import {
   getNextStep,
-  NEXT_STEP_STORAGE_KEY,
-  parseLocalSelection,
-  serializeLocalSelection,
+  removeLocalSelection,
+  restoreLocalSelection,
+  saveLocalSelection,
 } from "@/lib/next-step";
 import type { DirectionId } from "@/lib/directions";
 
@@ -42,13 +42,12 @@ export default function ActivityFlow() {
   const [isLoadingDirections, setIsLoadingDirections] = useState(false);
   const [selectedDirectionId, setSelectedDirectionId] = useState<DirectionId | null>(null);
   const [restoredDirectionId, setRestoredDirectionId] = useState<DirectionId | null>(null);
+  const [localSaveFailed, setLocalSaveFailed] = useState(false);
+  const directionsRequestId = useRef(0);
 
   useEffect(() => {
     const restoreTimer = window.setTimeout(() => {
-      const stored = window.localStorage.getItem(NEXT_STEP_STORAGE_KEY);
-      const restored = parseLocalSelection(stored);
-      if (stored && !restored) window.localStorage.removeItem(NEXT_STEP_STORAGE_KEY);
-      setRestoredDirectionId(restored);
+      setRestoredDirectionId(restoreLocalSelection(window.localStorage));
     }, 0);
     return () => window.clearTimeout(restoreTimer);
   }, []);
@@ -66,6 +65,8 @@ export default function ActivityFlow() {
       return;
     }
     setResult(nextResult);
+    directionsRequestId.current += 1;
+    setIsLoadingDirections(false);
     setDirections(null);
     setSelectedDirectionId(null);
     setScreen("result");
@@ -75,20 +76,33 @@ export default function ActivityFlow() {
     if (!directions?.possibilities.some((possibility) => possibility.id === directionId)) return;
     setSelectedDirectionId(directionId);
     setRestoredDirectionId(directionId);
-    window.localStorage.setItem(NEXT_STEP_STORAGE_KEY, serializeLocalSelection(directionId));
+    setLocalSaveFailed(!saveLocalSelection(window.localStorage, directionId));
   };
 
   const clearRestoredSelection = () => {
-    window.localStorage.removeItem(NEXT_STEP_STORAGE_KEY);
+    removeLocalSelection(window.localStorage);
     setRestoredDirectionId(null);
     setSelectedDirectionId(null);
+    setLocalSaveFailed(false);
+  };
+
+  const editAnswers = () => {
+    directionsRequestId.current += 1;
+    setIsLoadingDirections(false);
+    removeLocalSelection(window.localStorage);
+    setRestoredDirectionId(null);
+    setSelectedDirectionId(null);
+    setLocalSaveFailed(false);
+    setScreen("activity");
   };
 
   const selectedNextStep = selectedDirectionId ? getNextStep(selectedDirectionId) : null;
   const restoredNextStep = restoredDirectionId ? getNextStep(restoredDirectionId) : null;
 
   const loadDirections = async () => {
-    if (!result) return;
+    if (!result || isLoadingDirections) return;
+    const requestId = directionsRequestId.current + 1;
+    directionsRequestId.current = requestId;
     setIsLoadingDirections(true);
     try {
       const response = await fetch("/api/directions", {
@@ -99,11 +113,13 @@ export default function ActivityFlow() {
       if (!response.ok) throw new Error("invalid response");
       const validated = validateDirectionsResponse(await response.json(), result);
       if (!validated) throw new Error("invalid contract");
+      if (directionsRequestId.current !== requestId) return;
       setDirections(validated);
     } catch {
+      if (directionsRequestId.current !== requestId) return;
       setDirections({ possibilities: getFallbackDirections(result), provenance: "fallback", evidence: result });
     } finally {
-      setIsLoadingDirections(false);
+      if (directionsRequestId.current === requestId) setIsLoadingDirections(false);
     }
   };
 
@@ -237,10 +253,10 @@ export default function ActivityFlow() {
             </section>
           )}
           <div className="result-actions">
-            <button className="primary-button" type="button" onClick={() => { setSelectedDirectionId(null); setScreen("activity"); }}>Cambiar mis respuestas</button>
+            <button className="primary-button" type="button" onClick={editAnswers}>Cambiar mis respuestas</button>
             <button className="text-button" type="button" onClick={() => { setScreen("selection"); setResult(null); }}>Elegir otra actividad</button>
           </div>
-          <p className="milestone-note">Tu elección se guarda sólo en este dispositivo y no contiene datos personales.</p>
+          <p className="milestone-note">{localSaveFailed ? "No pudimos guardar en este dispositivo, pero tu siguiente paso sigue disponible ahora." : "Tu elección se guarda sólo en este dispositivo y no contiene datos personales."}</p>
         </div>
       )}
     </section>

@@ -73,6 +73,37 @@ describe("límite de posibilidades", () => {
 
     const malformedFetch = vi.fn(async () => openAiResponse({ possibilities: [{ id: "unknown" }] }));
     expect(await generateDirections(activityResult, { apiKey: "test", fetchImpl: malformedFetch as unknown as typeof fetch })).toMatchObject({ provenance: "fallback", possibilities: expected });
+
+    const httpFailure = vi.fn(async () => openAiResponse({}, false));
+    expect(await generateDirections(activityResult, { apiKey: "test", fetchImpl: httpFailure as unknown as typeof fetch })).toMatchObject({ provenance: "fallback", possibilities: expected });
+
+    const invalidJson = vi.fn(async () => new Response("{", { status: 200 }));
+    expect(await generateDirections(activityResult, { apiKey: "test", fetchImpl: invalidJson as unknown as typeof fetch })).toMatchObject({ provenance: "fallback", possibilities: expected });
+  });
+
+  it("cancela por timeout y usa respaldo determinista", async () => {
+    const hangingFetch = vi.fn((_url: string | URL | Request, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
+    }));
+
+    const result = await generateDirections(activityResult, {
+      apiKey: "test",
+      fetchImpl: hangingFetch as typeof fetch,
+      timeoutMs: 1,
+    });
+
+    expect(result.provenance).toBe("fallback");
+    expect(result.possibilities).toEqual(getFallbackDirections(activityResult));
+  });
+
+  it("rechaza lenguaje que intenta decidir o puntuar a la persona", () => {
+    const forcedDecision = {
+      possibilities: [
+        { ...modelPossibilities.possibilities[0], reason: "Debes trabajar aquí porque es la carrera correcta para ti." },
+        modelPossibilities.possibilities[1],
+      ],
+    };
+    expect(validateDirectionOutput(forcedDecision).success).toBe(false);
   });
 
   it("rechaza campos de puntaje o decisión aunque acompañen posibilidades válidas", async () => {

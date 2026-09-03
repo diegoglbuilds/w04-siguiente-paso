@@ -17,6 +17,7 @@ beforeEach(() => window.localStorage.clear());
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 const showPossibilities = async () => {
@@ -82,5 +83,29 @@ describe("elección del usuario y siguiente paso", () => {
 
     await waitFor(() => expect(window.localStorage.getItem(NEXT_STEP_STORAGE_KEY)).toBeNull());
     expect(screen.queryByLabelText("Siguiente paso guardado")).toBeNull();
+  });
+
+  it("mantiene visible el siguiente paso si el almacenamiento local no está disponible", async () => {
+    await showPossibilities();
+    const storageWrite = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("Storage blocked", "SecurityError");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Elegir Apoyo en operaciones" }));
+
+    expect(screen.getByText("Ordena cinco pendientes de práctica")).toBeDefined();
+    expect(screen.getByText("Tu siguiente paso sugerido")).toBeDefined();
+    expect(screen.getByText(/no pudimos guardar en este dispositivo/i)).toBeDefined();
+    storageWrite.mockRestore();
+  });
+
+  it("invalida la elección guardada cuando cambian las respuestas que la originaron", async () => {
+    await showPossibilities();
+    fireEvent.click(screen.getByRole("button", { name: "Elegir Apoyo en operaciones" }));
+    expect(window.localStorage.getItem(NEXT_STEP_STORAGE_KEY)).not.toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /cambiar mis respuestas/i }));
+
+    expect(window.localStorage.getItem(NEXT_STEP_STORAGE_KEY)).toBeNull();
   });
 });

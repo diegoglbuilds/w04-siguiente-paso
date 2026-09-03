@@ -53,3 +53,38 @@
 - **Límite LLM verificado:** el modelo continúa recibiendo sólo `evidence`; Route Handler y módulo OpenAI no conocen la selección ni el catálogo de siguientes pasos. La clave continúa ausente del componente cliente.
 - **Persistencia verificada:** sólo el ID allowlisted se conserva localmente; el audit no amplía el estado guardado ni introduce información personal.
 - **Alcance cerrado:** no se añadieron funciones de producto. Tampoco se inició el ciclo mecánico ni el Persona Test, que requieren sesiones separadas.
+
+## Mechanical Test Pass — fallos reproducidos y corregidos
+
+### Bug 1 — almacenamiento bloqueado interrumpe la elección
+
+- **Reproducción:** completar `Organizar`, cargar posibilidades, simular que `localStorage.setItem` lanza `SecurityError` y elegir `Apoyo en operaciones`.
+- **Esperado:** mostrar el siguiente paso aunque el navegador no permita guardar continuidad local.
+- **Resultado previo:** React recibía una excepción no controlada desde `chooseDirection`; Vitest la registró como `Uncaught Exception: SecurityError: Storage blocked`.
+- **Impacto:** una restricción del navegador podía romper el resultado principal después de que la persona completara todo el flujo.
+- **Causa raíz:** llamadas directas a `getItem`, `setItem` y `removeItem` asumían que Web Storage siempre estaba disponible.
+- **Corrección:** se encapsularon lectura, escritura y borrado en funciones tolerantes a excepciones. La acción permanece visible y la UI informa honestamente cuando no pudo guardarse.
+
+### Bug 2 — solicitud pendiente bloquea evidencia nueva y puede quedar obsoleta
+
+- **Reproducción:** solicitar posibilidades, volver antes de recibir respuesta, cambiar una respuesta, recalcular e intentar solicitar posibilidades otra vez.
+- **Esperado:** el resultado nuevo debe poder iniciar su propia solicitud; cualquier respuesta del resultado anterior debe ignorarse.
+- **Resultado previo:** el botón permanecía deshabilitado como `Buscando posibilidades…`, porque `isLoadingDirections` seguía ligado a la solicitud anterior. El código tampoco tenía una identidad de solicitud que impidiera un overwrite tardío.
+- **Impacto:** una red lenta podía impedir continuar después de corregir respuestas o mezclar posibilidades con evidencia anterior.
+- **Causa raíz:** el estado de carga y las respuestas asíncronas no estaban versionados por resultado.
+- **Corrección:** cada solicitud recibe un ID monotónico. Volver o recalcular invalida el ID y libera el estado de carga; `then`, `catch` y `finally` sólo actualizan UI si su ID sigue vigente. También se bloquean clics repetidos a nivel lógico.
+
+### Bug 3 — elección local obsoleta sobrevive al cambio de respuestas
+
+- **Reproducción:** elegir una posibilidad, confirmar que su ID está guardado y pulsar `Cambiar mis respuestas`.
+- **Esperado:** invalidar la elección persistida porque la evidencia que la originó será revisada.
+- **Resultado previo:** `localStorage` conservaba `{"directionId":"operations-support"}` y podía restaurarlo tras recargar.
+- **Impacto:** la continuidad local podía presentar una acción desconectada del resultado vigente.
+- **Causa raíz:** el retroceso limpiaba selección en memoria, pero no el estado persistido.
+- **Corrección:** editar respuestas elimina de forma segura la selección guardada y reinicia su estado de continuidad.
+
+### Profundización sin nuevos fallos
+
+- Se verificaron clics repetidos, retroceso durante carga, orden inverso de respuestas, storage inválido/desconocido/con campos extra, JSON de API malformado, HTTP fallido, timeout, schema inválido, campos de puntaje y lenguaje de decisión.
+- La validación determinista siguió rechazando respuestas, señales y formas manipuladas. El LLM permaneció fuera de la elección y del siguiente paso.
+- No se ejecutó despliegue ni Persona Test en esta sesión.
