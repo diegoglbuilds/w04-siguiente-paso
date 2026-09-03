@@ -69,6 +69,28 @@ fieldset label small { color:var(--muted); font-size:12px; line-height:1.4; }
 .signal-list li>span { display:grid; place-items:center; flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:#27845d; color:white; font-size:13px; }
 .signal-list strong { font-size:16px; }
 .signal-list p { margin:5px 0 0; color:#4e675b; font-size:13px; line-height:1.45; }
+.directions-gate { margin:34px 0; padding:24px; border:1px solid #d9cbea; border-radius:18px; background:#f8f4fc; text-align:center; }
+.directions-gate h3 { margin:0; font-size:22px; }
+.directions-gate p { margin:9px 0 20px; color:var(--muted); font-size:14px; }
+.directions-gate .primary-button { margin:0 auto; border:0; font:inherit; cursor:pointer; }
+.directions-gate .primary-button:disabled { cursor:wait; opacity:.7; transform:none; }
+.directions { margin:42px -10px 34px; padding:30px 10px 0; border-top:1px solid var(--line); }
+.provenance { display:inline-flex; padding:6px 10px; border-radius:999px; font-size:11px; font-weight:780; letter-spacing:.03em; text-transform:uppercase; }
+.provenance.ai { color:#503078; background:#eee4f8; }
+.provenance.fallback { color:#76501e; background:#fff0ce; }
+.directions-heading h3 { margin:16px 0 8px; font-size:clamp(27px,4vw,35px); letter-spacing:-.035em; }
+.directions-heading p { margin:0; color:var(--muted); font-size:14px; line-height:1.55; }
+.possibility-list { margin-top:23px; display:grid; gap:13px; }
+.possibility-card { padding:20px; border:1px solid var(--line); border-radius:16px; background:#fff; }
+.possibility-title { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
+.possibility-title h4 { margin:0; font-size:18px; }
+.possibility-title span { flex:0 0 auto; padding:4px 8px; border-radius:7px; background:#f0ebf5; color:#5c476f; font-size:10px; font-weight:750; }
+.possibility-card>p { margin:14px 0 0; display:grid; gap:4px; color:var(--muted); font-size:13px; line-height:1.5; }
+.possibility-card>p strong { color:var(--ink); font-size:12px; }
+.possibility-card .limitation { padding-top:13px; border-top:1px solid #ebe6ef; }
+.uncertainty-note { margin-top:15px; padding:15px; display:flex; gap:11px; border-radius:13px; background:#f3eff7; color:#554761; }
+.uncertainty-note>span { display:grid; place-items:center; flex:0 0 auto; width:22px; height:22px; border:1px solid #8d6aaf; border-radius:50%; color:var(--purple); font:700 12px Georgia,serif; }
+.uncertainty-note p { margin:1px 0 0; font-size:12px; line-height:1.5; }
 .result-actions { display:flex; align-items:center; gap:22px; }
 .result-actions .primary-button { border:0; font:inherit; cursor:pointer; }
 .milestone-note { margin:25px 0 0; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
@@ -105,6 +127,7 @@ footer p { color:var(--muted); font-size:13px; }
   .task-header { margin-top:24px; }
   .result-actions { align-items:stretch; flex-direction:column; gap:17px; }
   .result-actions .primary-button { width:100%; }
+  .possibility-title { flex-direction:column; gap:8px; }
   .how-it-works { padding:76px 0 68px; }
   .steps { grid-template-columns:1fr; }
   .steps li { min-height:0; display:flex; gap:17px; }

@@ -6,6 +6,11 @@ import {
   type ActivityResult,
   type OrganizeAnswers,
 } from "@/lib/activity";
+import {
+  getFallbackDirections,
+  validateDirectionsResponse,
+  type DirectionsResponse,
+} from "@/lib/directions";
 
 type Screen = "selection" | "activity" | "result";
 
@@ -26,6 +31,8 @@ export default function ActivityFlow() {
   const [answers, setAnswers] = useState<OrganizeAnswers>(INITIAL_ANSWERS);
   const [result, setResult] = useState<ActivityResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [directions, setDirections] = useState<DirectionsResponse | null>(null);
+  const [isLoadingDirections, setIsLoadingDirections] = useState(false);
 
   const updateAnswer = <Key extends keyof OrganizeAnswers>(key: Key, value: OrganizeAnswers[Key]) => {
     setAnswers((current) => ({ ...current, [key]: value }));
@@ -40,7 +47,28 @@ export default function ActivityFlow() {
       return;
     }
     setResult(nextResult);
+    setDirections(null);
     setScreen("result");
+  };
+
+  const loadDirections = async () => {
+    if (!result) return;
+    setIsLoadingDirections(true);
+    try {
+      const response = await fetch("/api/directions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activityResult: result }),
+      });
+      if (!response.ok) throw new Error("invalid response");
+      const validated = validateDirectionsResponse(await response.json(), result);
+      if (!validated) throw new Error("invalid contract");
+      setDirections(validated);
+    } catch {
+      setDirections({ possibilities: getFallbackDirections(result), provenance: "fallback", evidence: result });
+    } finally {
+      setIsLoadingDirections(false);
+    }
   };
 
   return (
@@ -114,11 +142,41 @@ export default function ActivityFlow() {
           <ul className="signal-list">
             {result.demonstratedSignals.map((signal) => <li key={signal}><span aria-hidden="true">✓</span><div><strong>{SIGNAL_COPY[signal].title}</strong><p>{SIGNAL_COPY[signal].detail}</p></div></li>)}
           </ul>
+          {!directions && (
+            <div className="directions-gate">
+              <h3>¿Quieres ver algunas posibilidades?</h3>
+              <p>Se basarán sólo en las señales estructuradas de esta actividad simulada.</p>
+              <button className="primary-button" type="button" disabled={isLoadingDirections} onClick={loadDirections}>
+                {isLoadingDirections ? "Buscando posibilidades…" : "Ver posibilidades"}
+              </button>
+            </div>
+          )}
+          {directions && (
+            <section className="directions" aria-labelledby="directions-title">
+              <div className="directions-heading">
+                <span className={`provenance ${directions.provenance}`}>
+                  {directions.provenance === "ai" ? "Posibilidades asistidas por IA" : "Posibilidades seguras de respaldo"}
+                </span>
+                <h3 id="directions-title">Posibles direcciones para explorar</h3>
+                <p><strong>Son posibilidades, no decisiones.</strong> Una actividad simulada de tres minutos no puede determinar tu futuro.</p>
+              </div>
+              <div className="possibility-list">
+                {directions.possibilities.map((possibility) => (
+                  <article className="possibility-card" key={possibility.id}>
+                    <div className="possibility-title"><h4>{possibility.title}</h4><span>{possibility.confidenceLabel === "demo" ? "Señal de demo" : `Confianza ${possibility.confidenceLabel === "medium" ? "media" : "baja"}`}</span></div>
+                    <p><strong>¿Por qué apareció?</strong>{possibility.reason}</p>
+                    <p className="limitation"><strong>Límite</strong>{possibility.limitations}</p>
+                  </article>
+                ))}
+              </div>
+              <aside className="uncertainty-note"><span aria-hidden="true">i</span><p>No evaluamos tu experiencia completa ni decidimos qué debes hacer. Tú conservarás todas las opciones.</p></aside>
+            </section>
+          )}
           <div className="result-actions">
             <button className="primary-button" type="button" onClick={() => setScreen("activity")}>Cambiar mis respuestas</button>
             <button className="text-button" type="button" onClick={() => { setScreen("selection"); setResult(null); }}>Elegir otra actividad</button>
           </div>
-          <p className="milestone-note">Las posibilidades se agregarán en la siguiente etapa de esta demo.</p>
+          <p className="milestone-note">La elección de una dirección y el siguiente paso se agregarán en la próxima etapa.</p>
         </div>
       )}
     </section>

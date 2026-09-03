@@ -20,3 +20,15 @@
 - **Sin puntaje:** el resultado sólo contiene `activity`, `simulated`, `answers` y `demonstratedSignals`. La interfaz aclara que no es calificación ni conclusión personal.
 - **Corrección reversible:** `Cambiar mis respuestas` conserva las opciones actuales para editarlas y recalcular. `Elegir otra actividad` vuelve a la selección sin guardar datos.
 - **Validación compartible:** cálculo y validación viven en un módulo TypeScript puro, independiente de React. En este milestone no existe payload de servidor; el mismo límite queda preparado para reutilizarse en el Route Handler posterior.
+
+## Milestone 3 — Posibilidades con LLM restringido
+
+- **Frontera HTTP exacta:** `POST /api/directions` acepta únicamente `{ activityResult }`. El servidor vuelve a validar actividad, indicador de simulación, respuestas, señales y ausencia de campos adicionales; además recalcula las señales para impedir que el cliente altere la evidencia.
+- **Evidencia autoritativa:** el resultado reconstruido por las reglas deterministas se envía sin campos adicionales al modelo y vuelve sin modificaciones en `evidence`. El modelo sólo propone explicaciones; no puede editar respuestas ni señales.
+- **Catálogo cerrado:** el modelo puede elegir entre tres IDs y títulos predefinidos (`operations-support`, `inventory-control`, `customer-followup`). `confidenceLabel` también es enum. Razones y limitaciones tienen límites de longitud y filtros de lenguaje prohibido.
+- **Structured Outputs:** la llamada REST usa Responses API con `text.format.type: json_schema`, schema estricto, `additionalProperties: false` en cada objeto y `store: false`. Se usa `gpt-5-mini` y `fetch` nativo, sin SDK.
+- **Secreto sólo servidor:** `OPENAI_API_KEY` se lee exclusivamente en un módulo marcado `server-only`. `.env.example` contiene un placeholder vacío y `.gitignore` mantiene ignorados los demás archivos `.env`.
+- **Fallo seguro:** ausencia de clave, timeout de ocho segundos, error HTTP/red, JSON malformado, contrato inválido o contenido inseguro producen tres posibilidades deterministas. La procedencia se etiqueta como respaldo y nunca se presenta como IA.
+- **Validación en ambos extremos:** el cliente valida también la respuesta del Route Handler y comprueba que `evidence` sea exactamente el resultado enviado. Si el endpoint completo falla, usa el mismo respaldo determinista local.
+- **Transparencia UX:** antes de solicitar posibilidades se conserva visible lo demostrado. Cada tarjeta muestra razón, confianza de demo o baja/media y limitación; un aviso destacado aclara que son posibilidades, no decisiones, y que tres minutos no determinan el futuro.
+- **Corte de alcance:** no existe selección de dirección, generación de siguiente paso ni persistencia; esas capacidades pertenecen al Milestone 4.
