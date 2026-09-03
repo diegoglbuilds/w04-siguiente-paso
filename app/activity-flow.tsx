@@ -167,7 +167,7 @@ export default function ActivityFlow() {
           <div className="task-header">
             <span className="demo-badge">Actividad simulada · 3 minutos</span>
             <h2 id="activity-title">Organizar pendientes</h2>
-            <p>Imagina una mesa de pedidos. No hay una calificación: sólo elige cómo actuarías en esta simulación.</p>
+            <p>Imagina una mesa de pedidos. No hay una calificación: sólo elige cómo actuarías. Esto describe tus decisiones en esta simulación, no tus capacidades personales.</p>
           </div>
           <form onSubmit={submitActivity} noValidate>
             <fieldset>
@@ -190,7 +190,7 @@ export default function ActivityFlow() {
               <label><input type="radio" name="updateAction" checked={answers.updateAction === "wait-until-end"} onChange={() => updateAnswer("updateAction", "wait-until-end")} /><span><strong>Esperar hasta el final del día</strong></span></label>
             </fieldset>
             {error && <p className="form-error" role="alert">{error}</p>}
-            <button className="primary-button submit-button" type="submit">Ver lo que demostré <span aria-hidden="true">→</span></button>
+            <button className="primary-button submit-button" type="submit">Ver qué observó la actividad <span aria-hidden="true">→</span></button>
           </form>
         </div>
       )}

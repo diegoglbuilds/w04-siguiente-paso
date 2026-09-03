@@ -20,7 +20,7 @@ if (!activityResult) throw new Error("Test fixture must be valid");
 const reachResult = () => {
   render(<Home />);
   fireEvent.click(screen.getByRole("button", { name: /organizar.*disponible.*3 minutos/i }));
-  fireEvent.click(screen.getByRole("button", { name: /ver lo que demostré/i }));
+  fireEvent.click(screen.getByRole("button", { name: /ver qué observó la actividad/i }));
 };
 
 describe("posibilidades en la interfaz", () => {
@@ -58,7 +58,7 @@ describe("posibilidades en la interfaz", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /cambiar mis respuestas/i }));
     fireEvent.click(screen.getByLabelText("Dejarlo sin revisar"));
-    fireEvent.click(screen.getByRole("button", { name: /ver lo que demostré/i }));
+    fireEvent.click(screen.getByRole("button", { name: /ver qué observó la actividad/i }));
     fireEvent.click(screen.getByRole("button", { name: "Ver posibilidades" }));
 
     const newerEvidence = calculateOrganizeResult({

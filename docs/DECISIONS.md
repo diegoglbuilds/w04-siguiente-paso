@@ -88,3 +88,11 @@
 - Se verificaron clics repetidos, retroceso durante carga, orden inverso de respuestas, storage inválido/desconocido/con campos extra, JSON de API malformado, HTTP fallido, timeout, schema inválido, campos de puntaje y lenguaje de decisión.
 - La validación determinista siguió rechazando respuestas, señales y formas manipuladas. El LLM permaneció fuera de la elección y del siguiente paso.
 - No se ejecutó despliegue ni Persona Test en esta sesión.
+
+## Persona Test — corrección focalizada
+
+- **Persona representada:** Mariana, usuaria sintética que recorrió la experiencia implementada en español.
+- **Confusión observada:** aunque entendió el aviso `No hay una calificación`, el CTA `Ver lo que demostré` le sonó a una evaluación personal. Al notar respuestas aparentemente mejores, dudó sobre qué esperaba el sistema y cuánto inferiría sobre ella a partir de tres decisiones simuladas.
+- **Por qué fue la confusión prioritaria:** apareció antes de que la pantalla de resultado pudiera explicar los límites y afectó directamente la confianza para completar la primera actividad. Tocaba la honestidad de simulación y la distinción entre observar una acción y perfilar a una persona.
+- **Cambio exacto:** el CTA ahora dice `Ver qué observó la actividad`. El texto cercano añade `Esto describe tus decisiones en esta simulación, no tus capacidades personales.` y conserva explícitamente que no hay calificación.
+- **Lógica sin cambios:** no se modificaron respuestas, cálculo determinista, evidencia, Route Handler, LLM, posibilidades, elección, siguientes pasos ni persistencia. La corrección es exclusivamente de lenguaje y su cobertura de regresión.

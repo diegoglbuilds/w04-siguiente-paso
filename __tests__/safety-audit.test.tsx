@@ -38,7 +38,7 @@ describe("auditoría integral de seguridad y Blueprint", () => {
     const answerNames = screen.getAllByRole("radio").map((radio) => radio.parentElement?.textContent?.toLocaleLowerCase("es") ?? "").join(" ");
     expect(answerNames).not.toMatch(/nombre|edad|teléfono|domicilio|biografía|historia escolar|historia laboral|por qué dejaste|fracaso/);
 
-    fireEvent.click(screen.getByRole("button", { name: /ver lo que demostré/i }));
+    fireEvent.click(screen.getByRole("button", { name: /ver qué observó la actividad/i }));
     expect(screen.getByText("Resultado simulado")).toBeDefined();
     expect(screen.getByText(/no una calificación ni una conclusión sobre ti/i)).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: "Ver posibilidades" }));

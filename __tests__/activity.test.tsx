@@ -27,21 +27,25 @@ describe("microactividad Organizar", () => {
   it("identifica visiblemente la actividad y el resultado como simulados", () => {
     enterOrganizeActivity();
     expect(screen.getByText(/actividad simulada · 3 minutos/i)).toBeDefined();
-    fireEvent.click(screen.getByRole("button", { name: /ver lo que demostré/i }));
+    expect(screen.getByText(/no hay una calificación/i)).toBeDefined();
+    expect(screen.getByText(/esto describe tus decisiones en esta simulación, no tus capacidades personales/i)).toBeDefined();
+    expect(screen.getByRole("button", { name: /ver qué observó la actividad/i })).toBeDefined();
+    expect(screen.queryByText(/ver lo que demostré/i)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /ver qué observó la actividad/i }));
     expect(screen.getByText("Resultado simulado")).toBeDefined();
     expect(screen.getByText(/no una calificación ni una conclusión sobre ti/i)).toBeDefined();
   });
 
   it("permite corregir respuestas y recalcula las señales", () => {
     enterOrganizeActivity();
-    fireEvent.click(screen.getByRole("button", { name: /ver lo que demostré/i }));
+    fireEvent.click(screen.getByRole("button", { name: /ver qué observó la actividad/i }));
     expect(screen.getByText("Detectaste información faltante")).toBeDefined();
     expect(screen.getByText("Consideraste el seguimiento")).toBeDefined();
 
     fireEvent.click(screen.getByRole("button", { name: /cambiar mis respuestas/i }));
     fireEvent.click(screen.getByLabelText("Dejarlo sin revisar"));
     fireEvent.click(screen.getByLabelText("Continuar sin avisar"));
-    fireEvent.click(screen.getByRole("button", { name: /ver lo que demostré/i }));
+    fireEvent.click(screen.getByRole("button", { name: /ver qué observó la actividad/i }));
 
     expect(screen.getByText("Comparaste prioridades")).toBeDefined();
     expect(screen.queryByText("Detectaste información faltante")).toBeNull();

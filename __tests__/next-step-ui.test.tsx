@@ -28,7 +28,7 @@ const showPossibilities = async () => {
   }))));
   render(<Home />);
   fireEvent.click(screen.getByRole("button", { name: /organizar.*disponible.*3 minutos/i }));
-  fireEvent.click(screen.getByRole("button", { name: /ver lo que demostré/i }));
+  fireEvent.click(screen.getByRole("button", { name: /ver qué observó la actividad/i }));
   fireEvent.click(screen.getByRole("button", { name: "Ver posibilidades" }));
   await screen.findByText("Posibilidades seguras de respaldo");
 };
