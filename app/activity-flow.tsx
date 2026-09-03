@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   calculateOrganizeResult,
   type ActivityResult,
@@ -11,6 +11,13 @@ import {
   validateDirectionsResponse,
   type DirectionsResponse,
 } from "@/lib/directions";
+import {
+  getNextStep,
+  NEXT_STEP_STORAGE_KEY,
+  parseLocalSelection,
+  serializeLocalSelection,
+} from "@/lib/next-step";
+import type { DirectionId } from "@/lib/directions";
 
 type Screen = "selection" | "activity" | "result";
 
@@ -33,6 +40,18 @@ export default function ActivityFlow() {
   const [error, setError] = useState<string | null>(null);
   const [directions, setDirections] = useState<DirectionsResponse | null>(null);
   const [isLoadingDirections, setIsLoadingDirections] = useState(false);
+  const [selectedDirectionId, setSelectedDirectionId] = useState<DirectionId | null>(null);
+  const [restoredDirectionId, setRestoredDirectionId] = useState<DirectionId | null>(null);
+
+  useEffect(() => {
+    const restoreTimer = window.setTimeout(() => {
+      const stored = window.localStorage.getItem(NEXT_STEP_STORAGE_KEY);
+      const restored = parseLocalSelection(stored);
+      if (stored && !restored) window.localStorage.removeItem(NEXT_STEP_STORAGE_KEY);
+      setRestoredDirectionId(restored);
+    }, 0);
+    return () => window.clearTimeout(restoreTimer);
+  }, []);
 
   const updateAnswer = <Key extends keyof OrganizeAnswers>(key: Key, value: OrganizeAnswers[Key]) => {
     setAnswers((current) => ({ ...current, [key]: value }));
@@ -48,8 +67,25 @@ export default function ActivityFlow() {
     }
     setResult(nextResult);
     setDirections(null);
+    setSelectedDirectionId(null);
     setScreen("result");
   };
+
+  const chooseDirection = (directionId: DirectionId) => {
+    if (!directions?.possibilities.some((possibility) => possibility.id === directionId)) return;
+    setSelectedDirectionId(directionId);
+    setRestoredDirectionId(directionId);
+    window.localStorage.setItem(NEXT_STEP_STORAGE_KEY, serializeLocalSelection(directionId));
+  };
+
+  const clearRestoredSelection = () => {
+    window.localStorage.removeItem(NEXT_STEP_STORAGE_KEY);
+    setRestoredDirectionId(null);
+    setSelectedDirectionId(null);
+  };
+
+  const selectedNextStep = selectedDirectionId ? getNextStep(selectedDirectionId) : null;
+  const restoredNextStep = restoredDirectionId ? getNextStep(restoredDirectionId) : null;
 
   const loadDirections = async () => {
     if (!result) return;
@@ -75,6 +111,15 @@ export default function ActivityFlow() {
     <section className="activity-shell" id="actividades" aria-labelledby="activity-title">
       {screen === "selection" && (
         <div className="activity-panel">
+          {restoredNextStep && (
+            <aside className="restored-step" aria-label="Siguiente paso guardado">
+              <span className="saved-label">Guardado en este dispositivo</span>
+              <h3>{restoredNextStep.title}</h3>
+              <p>{restoredNextStep.description}</p>
+              <div className="step-facts"><span>Hoy</span><span>{restoredNextStep.estimatedMinutes} minutos</span><span>Costo: $0 MXN</span></div>
+              <button className="text-button" type="button" onClick={clearRestoredSelection}>Cambiar esta elección</button>
+            </aside>
+          )}
           <div className="section-heading compact-heading">
             <p className="eyebrow">Actividad breve</p>
             <h2 id="activity-title">¿Qué te gustaría intentar hoy?</h2>
@@ -166,17 +211,35 @@ export default function ActivityFlow() {
                     <div className="possibility-title"><h4>{possibility.title}</h4><span>{possibility.confidenceLabel === "demo" ? "Señal de demo" : `Confianza ${possibility.confidenceLabel === "medium" ? "media" : "baja"}`}</span></div>
                     <p><strong>¿Por qué apareció?</strong>{possibility.reason}</p>
                     <p className="limitation"><strong>Límite</strong>{possibility.limitations}</p>
+                    <button
+                      className="choose-button"
+                      type="button"
+                      aria-pressed={selectedDirectionId === possibility.id}
+                      onClick={() => chooseDirection(possibility.id)}
+                    >
+                      {selectedDirectionId === possibility.id ? "Elegiste esta posibilidad" : `Elegir ${possibility.title}`}
+                    </button>
                   </article>
                 ))}
               </div>
               <aside className="uncertainty-note"><span aria-hidden="true">i</span><p>No evaluamos tu experiencia completa ni decidimos qué debes hacer. Tú conservarás todas las opciones.</p></aside>
+              {!selectedNextStep && <p className="choice-prompt">Tú eliges cuál explorar. Ninguna está seleccionada automáticamente.</p>}
+              {selectedNextStep && (
+                <section className="next-step-card" aria-labelledby="next-step-title">
+                  <span className="saved-label">Tu siguiente paso sugerido</span>
+                  <h3 id="next-step-title">{selectedNextStep.title}</h3>
+                  <p>{selectedNextStep.description}</p>
+                  <div className="step-facts"><span>Para hoy</span><span>Tiempo estimado: {selectedNextStep.estimatedMinutes} minutos</span><span>Costo: $0 MXN</span></div>
+                  <p className="step-reminder">Es una sugerencia práctica, no una decisión permanente ni una garantía de empleo. Puedes elegir otra posibilidad cuando quieras.</p>
+                </section>
+              )}
             </section>
           )}
           <div className="result-actions">
-            <button className="primary-button" type="button" onClick={() => setScreen("activity")}>Cambiar mis respuestas</button>
+            <button className="primary-button" type="button" onClick={() => { setSelectedDirectionId(null); setScreen("activity"); }}>Cambiar mis respuestas</button>
             <button className="text-button" type="button" onClick={() => { setScreen("selection"); setResult(null); }}>Elegir otra actividad</button>
           </div>
-          <p className="milestone-note">La elección de una dirección y el siguiente paso se agregarán en la próxima etapa.</p>
+          <p className="milestone-note">Tu elección se guarda sólo en este dispositivo y no contiene datos personales.</p>
         </div>
       )}
     </section>

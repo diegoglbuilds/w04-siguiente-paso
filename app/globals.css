@@ -46,6 +46,11 @@ button.activity-option:focus-visible,button:focus-visible { outline:3px solid #f
 .option-arrow { color:var(--purple); font-size:24px; }
 .activity-option.unavailable { opacity:.65; }
 .selection-privacy { margin:20px 0 0; color:var(--muted); font-size:13px; text-align:center; }
+.restored-step { margin-bottom:36px; padding:23px; border:1px solid #c9dcce; border-radius:18px; background:#f1f8f3; }
+.restored-step h3 { margin:10px 0 7px; font-size:21px; }
+.restored-step>p { margin:0 0 15px; color:#4c6152; font-size:14px; line-height:1.5; }
+.restored-step .text-button { margin-top:17px; }
+.saved-label { color:#35724f; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
 .task-panel,.result-panel { width:min(720px,100%); padding:34px; border:1px solid var(--line); border-radius:24px; background:white; box-shadow:0 24px 60px rgba(67,38,98,.08); }
 .back-button,.text-button { padding:0; border:0; background:transparent; color:var(--purple); font:inherit; font-size:14px; font-weight:700; cursor:pointer; }
 .task-header { margin:28px 0 35px; }
@@ -88,9 +93,19 @@ fieldset label small { color:var(--muted); font-size:12px; line-height:1.4; }
 .possibility-card>p { margin:14px 0 0; display:grid; gap:4px; color:var(--muted); font-size:13px; line-height:1.5; }
 .possibility-card>p strong { color:var(--ink); font-size:12px; }
 .possibility-card .limitation { padding-top:13px; border-top:1px solid #ebe6ef; }
+.choose-button { width:100%; min-height:44px; margin-top:17px; padding:9px 14px; border:1px solid #8055ac; border-radius:11px; background:white; color:var(--purple); font:inherit; font-size:13px; font-weight:750; cursor:pointer; }
+.choose-button:hover { background:#f5effb; }
+.choose-button[aria-pressed="true"] { border-color:var(--purple); background:var(--purple); color:white; }
 .uncertainty-note { margin-top:15px; padding:15px; display:flex; gap:11px; border-radius:13px; background:#f3eff7; color:#554761; }
 .uncertainty-note>span { display:grid; place-items:center; flex:0 0 auto; width:22px; height:22px; border:1px solid #8d6aaf; border-radius:50%; color:var(--purple); font:700 12px Georgia,serif; }
 .uncertainty-note p { margin:1px 0 0; font-size:12px; line-height:1.5; }
+.choice-prompt { margin:18px 0 0; color:var(--purple); font-size:13px; font-weight:720; text-align:center; }
+.next-step-card { margin-top:24px; padding:25px; border:2px solid #78a587; border-radius:19px; background:linear-gradient(145deg,#f7fcf8,#eef7f1); box-shadow:0 14px 32px rgba(40,101,66,.09); }
+.next-step-card h3 { margin:10px 0 9px; font-size:clamp(24px,4vw,31px); letter-spacing:-.035em; }
+.next-step-card>p { margin:0; color:#46584c; font-size:14px; line-height:1.55; }
+.step-facts { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+.step-facts span { padding:6px 9px; border-radius:8px; background:#dceee2; color:#2f6343; font-size:11px; font-weight:760; }
+.next-step-card .step-reminder { margin-top:19px; padding-top:16px; border-top:1px solid #c8dfcf; font-size:12px; }
 .result-actions { display:flex; align-items:center; gap:22px; }
 .result-actions .primary-button { border:0; font:inherit; cursor:pointer; }
 .milestone-note { margin:25px 0 0; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }

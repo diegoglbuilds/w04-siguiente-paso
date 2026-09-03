@@ -32,3 +32,14 @@
 - **Validación en ambos extremos:** el cliente valida también la respuesta del Route Handler y comprueba que `evidence` sea exactamente el resultado enviado. Si el endpoint completo falla, usa el mismo respaldo determinista local.
 - **Transparencia UX:** antes de solicitar posibilidades se conserva visible lo demostrado. Cada tarjeta muestra razón, confianza de demo o baja/media y limitación; un aviso destacado aclara que son posibilidades, no decisiones, y que tres minutos no determinan el futuro.
 - **Corte de alcance:** no existe selección de dirección, generación de siguiente paso ni persistencia; esas capacidades pertenecen al Milestone 4.
+
+## Milestone 4 — Elección y siguiente paso concreto
+
+- **Elección explícita:** ninguna posibilidad llega seleccionada. Cada tarjeta conserva el mismo peso visual y presenta su propio botón `Elegir…`; la acción sólo aparece después de un clic de la persona.
+- **IA no autoritativa:** no se modificó el Route Handler, prompt ni contrato del LLM. La IA continúa limitada a explicar posibilidades y no recibe la elección ni genera la acción.
+- **Acciones deterministas:** cada `DirectionId` allowlisted tiene exactamente un `NextStep` local, gratuito, simulado, realizable hoy y de 15–20 minutos. Ninguno pide curso, postulación laboral, pago o información personal.
+- **Una acción a la vez:** cambiar de posibilidad sustituye la acción visible; no acumula pasos ni oculta las demás alternativas. El recordatorio aclara que la elección es reversible y no define el futuro.
+- **Persistencia mínima:** `localStorage` guarda exclusivamente JSON con `{ directionId }` bajo una clave versionada. Título, descripción, duración, evidencia, respuestas y texto del LLM se reconstruyen o permanecen en memoria y nunca se persisten.
+- **Restauración validada:** el estado local debe ser un objeto exacto con un único ID del allowlist. JSON inválido, IDs desconocidos o campos adicionales provocan eliminación segura del valor.
+- **Continuidad sin preselección:** una elección restaurada se muestra como recordatorio independiente en la entrada de actividades. No preselecciona automáticamente una posibilidad cuando se inicia un flujo nuevo.
+- **Corte de alcance:** no se añadieron autenticación, persistencia remota, pagos, solicitudes de empleo, cursos, tutoría ni trabajo de hardening del Milestone 5.
