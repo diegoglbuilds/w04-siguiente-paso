@@ -117,6 +117,7 @@ export default function ActivityFlow() {
               <h3>{restoredNextStep.title}</h3>
               <p>{restoredNextStep.description}</p>
               <div className="step-facts"><span>Hoy</span><span>{restoredNextStep.estimatedMinutes} minutos</span><span>Costo: $0 MXN</span></div>
+              <p>Sigue siendo una sugerencia reversible: no define tu futuro.</p>
               <button className="text-button" type="button" onClick={clearRestoredSelection}>Cambiar esta elección</button>
             </aside>
           )}

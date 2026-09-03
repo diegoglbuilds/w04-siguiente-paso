@@ -43,3 +43,13 @@
 - **Restauración validada:** el estado local debe ser un objeto exacto con un único ID del allowlist. JSON inválido, IDs desconocidos o campos adicionales provocan eliminación segura del valor.
 - **Continuidad sin preselección:** una elección restaurada se muestra como recordatorio independiente en la entrada de actividades. No preselecciona automáticamente una posibilidad cuando se inicia un flujo nuevo.
 - **Corte de alcance:** no se añadieron autenticación, persistencia remota, pagos, solicitudes de empleo, cursos, tutoría ni trabajo de hardening del Milestone 5.
+
+## Milestone 5 — Auditoría de seguridad y UX
+
+- **Resultado del audit:** el flujo completo conserva entrada privada, Shadow Clause, simulación honesta, datos cerrados, posibilidades inciertas, elección explícita y una acción gratuita. No se encontraron etiquetas prohibidas, framing gubernamental, puntajes, pagos, cursos, postulaciones ni tutoría.
+- **Copy actualizado:** la explicación inferior ya no habla de una “siguiente etapa” inexistente; indica que la actividad ya puede elegirse. El recordatorio restaurado aclara también que la acción guardada sigue siendo una sugerencia reversible y no define el futuro.
+- **Protección integral:** una nueva prueba recorre entrada, actividad, resultado, posibilidades y elección, y audita controles, CTAs y texto visible contra historia personal, identidades prohibidas, asistencia, pagos, puntajes y decisiones permanentes.
+- **Autoridad del usuario verificada:** antes del clic no hay selección; después existe una sola selección, las tres alternativas siguen visibles y la interfaz recuerda que puede cambiarla.
+- **Límite LLM verificado:** el modelo continúa recibiendo sólo `evidence`; Route Handler y módulo OpenAI no conocen la selección ni el catálogo de siguientes pasos. La clave continúa ausente del componente cliente.
+- **Persistencia verificada:** sólo el ID allowlisted se conserva localmente; el audit no amplía el estado guardado ni introduce información personal.
+- **Alcance cerrado:** no se añadieron funciones de producto. Tampoco se inició el ciclo mecánico ni el Persona Test, que requieren sesiones separadas.

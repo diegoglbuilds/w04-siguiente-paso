@@ -55,7 +55,7 @@ export default function Home() {
         <div className="section-heading">
           <p className="eyebrow">Así funciona</p>
           <h2 id="how-title">Una acción corta abre posibilidades.</h2>
-          <p>En la siguiente etapa podrás elegir una actividad simulada de menos de cinco minutos.</p>
+          <p>Aquí puedes elegir una actividad simulada de menos de cinco minutos.</p>
         </div>
         <ol className="steps">
           <li><span>1</span><div><strong>Haz algo breve</strong><p>Una actividad práctica con respuestas cerradas.</p></div></li>
