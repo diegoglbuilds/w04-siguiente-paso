@@ -8,7 +8,7 @@ describe("entrada privada de Siguiente Paso", () => {
   it("abre con una acción hacia adelante y sin pedir una confesión", () => {
     render(<Home />);
     expect(screen.getByRole("heading", { name:"Empieza por lo que puedes hacer hoy." })).toBeDefined();
-    expect(screen.getByRole("link", { name:/dar mi primer paso/i }).getAttribute("href")).toBe("#como-funciona");
+    expect(screen.getByRole("link", { name:/dar mi primer paso/i }).getAttribute("href")).toBe("#actividades");
     expect(screen.getByText(/no necesitas explicar por qué dejaste la escuela o un trabajo/i)).toBeDefined();
     expect(screen.getByText(/acción breve, no con preguntas sobre tu pasado/i)).toBeDefined();
   });

@@ -41,7 +41,7 @@ export default function Home() {
             <p className="eyebrow">Tu primer paso es hacia adelante</p>
             <h1 id="hero-title">Empieza por lo que puedes hacer hoy.</h1>
             <p className="hero-lead">No necesitas explicar por qué dejaste la escuela o un trabajo. Aquí comienzas con una acción breve, no con preguntas sobre tu pasado.</p>
-            <a className="primary-button" href="#como-funciona">Dar mi primer paso <ArrowIcon /></a>
+            <a className="primary-button" href="#actividades">Dar mi primer paso <ArrowIcon /></a>
             <p className="privacy-note"><LockIcon /> No te pediremos nombre, teléfono, documentos ni datos personales.</p>
           </div>
           <div className="illustration-card">
@@ -50,6 +50,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <ActivityFlow />
       <section className="how-it-works" id="como-funciona" aria-labelledby="how-title">
         <div className="section-heading">
           <p className="eyebrow">Así funciona</p>
@@ -70,3 +71,4 @@ export default function Home() {
     </main>
   );
 }
+import ActivityFlow from "./activity-flow";
